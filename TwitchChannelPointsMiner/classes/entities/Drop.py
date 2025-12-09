@@ -87,7 +87,7 @@ class Drop(object):
         self.percentage_progress = updated_percentage
 
     def __repr__(self):
-        return f"Drop(id={self.id}, name={self.name}, benefit={self.benefit}, minutes_required={self.minutes_required}, has_preconditions_met={self.has_preconditions_met}, current_minutes_watched={self.current_minutes_watched}, percentage_progress={self.percentage_progress}%, drop_instance_id={self.drop_instance_id}, is_claimed={self.is_claimed})"
+        return f"Дроп (id: {self.id}, имя: {self.name}, выгода: {self.benefit}, необходимо минут: {self.minutes_required}, предвидения совпали: {self.has_preconditions_met}, просмотрено минут: {self.current_minutes_watched}, прогресс: {self.percentage_progress}%, id экземпляра: {self.drop_instance_id}, получен: {self.is_claimed})"
 
     def __str__(self):
         return (

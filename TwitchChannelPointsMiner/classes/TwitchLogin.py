@@ -73,7 +73,7 @@ class TwitchLogin(object):
         self.shared_cookies = []
 
     def login_flow(self):
-        logger.info("You'll have to login to Twitch!")
+        logger.info("Необходимо войти на Twitch!")
 
         post_data = {
             "client_id": self.client_id,
@@ -86,7 +86,7 @@ class TwitchLogin(object):
         use_backup_flow = False
         # use_backup_flow = True
         while True:
-            logger.info("Trying the TV login method..")
+            logger.info("Пробуем ТВ метод..")
 
             login_response = self.send_oauth_request(
                 "https://id.twitch.tv/oauth2/device", post_data)
@@ -100,7 +100,7 @@ class TwitchLogin(object):
             # }
 
             if login_response.status_code != 200:
-                logger.error("TV login response is not 200. Try again")
+                logger.error("ТВ ответ не 200. Пробую ещё раз")
                 break
 
             login_response_json = login_response.json()
@@ -113,13 +113,13 @@ class TwitchLogin(object):
                 expires_at = now + \
                     timedelta(seconds=login_response_json["expires_in"])
                 logger.info(
-                    "Open https://www.twitch.tv/activate"
+                    "Откройте https://www.twitch.tv/activate"
                 )
                 logger.info(
-                    f"and enter this code: {user_code}"
+                    f"и введите этот код: {user_code}"
                 )
                 logger.info(
-                    f"Hurry up! It will expire in {int(login_response_json['expires_in'] / 60)} minutes!"
+                    f"Поспешите! Он истечёт через {int(login_response_json['expires_in'] / 60)} минут!"
                 )
                 # twofa = input("2FA token: ")
                 # webbrowser.open_new_tab("https://www.twitch.tv/activate")
@@ -136,7 +136,7 @@ class TwitchLogin(object):
                     login_response = self.send_oauth_request(
                         "https://id.twitch.tv/oauth2/token", post_data)
                     if now == expires_at:
-                        logger.error("Code expired. Try again")
+                        logger.error("Код истёк. Попробуйте ещё раз")
                         break
                     # 200 means success, 400 means the user haven't entered the code yet
                     if login_response.status_code != 200:
@@ -165,7 +165,7 @@ class TwitchLogin(object):
 
                         logger.error(f"Unknown error: {login_response}")
                         raise NotImplementedError(
-                            f"Unknown TwitchAPI error code: {err_code}"
+                            f"Неизвестный код ошибки TwitchAPI: {err_code}"
                         )
 
             if use_backup_flow:
@@ -230,7 +230,7 @@ class TwitchLogin(object):
         # options.set_capability("detach", True)
 
         logger.info(
-            'Now a browser window will open, it will login with your data.')
+            'Сейчас откроется браузер для входа с Вашими данными.')
         driver = uc.Chrome(
             options=options, use_subprocess=True  # , executable_path=EXECUTABLE_PATH
         )
@@ -245,11 +245,11 @@ class TwitchLogin(object):
         )
 
         logger.info(
-            'Enter your verification code in the browser and wait for the Twitch website to load, then press Enter here.'
+            'Введите Ваш код подтверждения и подождите загрузки сайта Twitch, потом нажмите тут Enter.'
         )
         input()
 
-        logger.info("Extracting cookies...")
+        logger.info("Извлечение куки...")
         self.cookies = driver.get_cookies()
         # print(self.cookies)
         # driver.close()
@@ -258,26 +258,26 @@ class TwitchLogin(object):
         # print(f"self.username: {self.username}")
 
         if not self.username:
-            logger.error("Couldn't extract login, probably bad cookies.")
+            logger.error("Не удалось извлечь логин, вероятно плохие куки.")
             return False
 
         return self.get_cookie_value("auth-token")"""
 
-        # logger.error("Backup login flow is not available. Use a VPN or wait a while to avoid the CAPTCHA.")
+        # logger.error("Резервные поток входа в систему не доступен. Используйте VPN или подождите немного, чтобы избежать CAPTCHA.")
         # return False
 
         """Backup OAuth login flow in case manual captcha solving is required"""
         browser = input(
-            "What browser do you use? Chrome (1), Firefox (2), Other (3): "
+            "Какой браузер Вы исползуете? Chrome (1), Firefox (2), Other (3): "
         ).strip()
         if browser not in ("1", "2"):
-            logger.info("Your browser is unsupported, sorry.")
+            logger.info("Ваш браузер не поддерживается.")
             return None
 
         input(
-            "Please login inside your browser of choice (NOT incognito mode) and press Enter..."
+            "Пожалуйста войдите через браузер (НЕ режим инкогнито) и нажмите Enter..."
         )
-        logger.info("Loading cookies saved on your computer...")
+        logger.info("Загружаем сохранённые на компьютере куки...")
         twitch_domain = ".twitch.tv"
         if browser == "1":  # chrome
             cookie_jar = browser_cookie3.chrome(domain_name=twitch_domain)
@@ -300,7 +300,7 @@ class TwitchLogin(object):
         return self.login_check_result
 
     def save_cookies(self, cookies_file):
-        logger.info("Saving cookies to your computer..")
+        logger.info("Сохраняем куки на Ваш компьютер..")
         cookies_dict = self.session.cookies.get_dict()
         # print(f"cookies_dict2pickle: {cookies_dict}")
         cookies_dict["auth-token"] = self.token

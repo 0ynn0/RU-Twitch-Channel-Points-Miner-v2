@@ -8,7 +8,6 @@ from threading import Thread, Timer
 
 from dateutil import parser
 
-from TwitchChannelPointsMiner.classes.entities.CommunityGoal import CommunityGoal
 from TwitchChannelPointsMiner.classes.entities.EventPrediction import EventPrediction
 from TwitchChannelPointsMiner.classes.entities.Message import Message
 from TwitchChannelPointsMiner.classes.entities.Raid import Raid
@@ -78,7 +77,7 @@ class WebSocketsPool:
                     sslopt={"cert_reqs": ssl.CERT_NONE}
                 )
             )
-            logger.warn("SSL certificate verification is disabled! Be aware!")
+            logger.warn("Проверка SSL сертификата отключена! Будьте осторожны!")
         else:
             thread_ws = Thread(target=lambda: self.ws[index].run_forever())
         thread_ws.daemon = True
@@ -108,7 +107,7 @@ class WebSocketsPool:
 
                     if ws.elapsed_last_pong() > 5:
                         logger.info(
-                            f"#{ws.index} - The last PONG was received more than 5 minutes ago"
+                            f"#{ws.index} - Последний PONG был получен больше 5 минут назад"
                         )
                         WebSocketsPool.handle_reconnection(ws)
 
@@ -120,7 +119,7 @@ class WebSocketsPool:
     def on_error(ws, error):
         # Connection lost | [WinError 10054] An existing connection was forcibly closed by the remote host
         # Connection already closed | Connection is already closed (raise WebSocketConnectionClosedException)
-        logger.error(f"#{ws.index} - WebSocket error: {error}")
+        logger.error(f"#{ws.index} - Ошибка WebSocket: {error}")
 
     @staticmethod
     def on_close(ws, close_status_code, close_reason):
@@ -143,14 +142,14 @@ class WebSocketsPool:
 
             if ws.forced_close is False:
                 logger.info(
-                    f"#{ws.index} - Reconnecting to Twitch PubSub server in ~60 seconds"
+                    f"#{ws.index} - Переподключение к серверу Twitch PubSub через ~60 секунд"
                 )
                 time.sleep(30)
 
                 while internet_connection_available() is False:
                     random_sleep = random.randint(1, 3)
                     logger.warning(
-                        f"#{ws.index} - No internet connection available! Retry after {random_sleep}m"
+                        f"#{ws.index} - Интернет соединение не доступно! Повтор через {random_sleep}м"
                     )
                     time.sleep(random_sleep * 60)
 
@@ -167,7 +166,7 @@ class WebSocketsPool:
 
     @staticmethod
     def on_message(ws, message):
-        logger.debug(f"#{ws.index} - Received: {message.strip()}")
+        logger.debug(f"#{ws.index} - Получено: {message.strip()}")
         response = json.loads(message)
 
         if response["type"] == "MESSAGE":
@@ -207,7 +206,7 @@ class WebSocketsPool:
                             reason_code = message.data["point_gain"]["reason_code"]
 
                             logger.info(
-                                f"+{earned} → {ws.streamers[streamer_index]} - Reason: {reason_code}.",
+                                f"+{earned} → {ws.streamers[streamer_index]} - Причина: {reason_code}.",
                                 extra={
                                     "emoji": ":rocket:",
                                     "event": Events.get(f"GAIN_FOR_{reason_code}"),
@@ -308,7 +307,7 @@ class WebSocketsPool:
                                         place_bet_thread.start()
 
                                         logger.info(
-                                            f"Place the bet after: {start_after}s for: {ws.events_predictions[event_id]}",
+                                            f"Сделаю ставку после {start_after}с на: {ws.events_predictions[event_id]}",
                                             extra={
                                                 "emoji": ":alarm_clock:",
                                                 "event": Events.BET_START,
@@ -316,7 +315,7 @@ class WebSocketsPool:
                                         )
                                     else:
                                         logger.info(
-                                            f"{streamer} have only {streamer.channel_points} channel points and the minimum for bet is: {bet_settings.minimum_points}",
+                                            f"{streamer}. В наличии только {streamer.channel_points} Приколов, а минимум для ставки: {bet_settings.minimum_points}",
                                             extra={
                                                 "emoji": ":pushpin:",
                                                 "event": Events.BET_FILTERS,
@@ -354,8 +353,8 @@ class WebSocketsPool:
 
                                 logger.info(
                                     (
-                                        f"{event_prediction} - Decision: {choice}: {decision['title']} "
-                                        f"({decision['color']}) - Result: {event_prediction.result['string']}"
+                                        f"{event_prediction} - Решение: {choice}: {decision['title']} "
+                                        f"({decision['color']}) - Результат: {event_prediction.result['string']}"
                                     ),
                                     extra={
                                         "emoji": ":bar_chart:",
@@ -398,43 +397,24 @@ class WebSocketsPool:
                                 if Settings.enable_analytics is True:
                                     ws.streamers[streamer_index].persistent_annotations(
                                         "PREDICTION_MADE",
-                                        f"Decision: {event_prediction.bet.decision['choice']} - {event_prediction.title}",
+                                        f"Решение: {event_prediction.bet.decision['choice']} - {event_prediction.title}",
                                     )
-                    elif message.topic == "community-points-channel-v1":
-                        if message.type == "community-goal-created":
-                            # TODO Untested, hard to find this happening live
-                            ws.streamers[streamer_index].add_community_goal(
-                                CommunityGoal.from_pubsub(message.data["community_goal"])
-                            )
-                        elif message.type == "community-goal-updated":
-                            ws.streamers[streamer_index].update_community_goal(
-                                CommunityGoal.from_pubsub(message.data["community_goal"])
-                            )
-                        elif message.type == "community-goal-deleted":
-                            # TODO Untested, not sure what the message format for this is,
-                            #      https://github.com/sammwyy/twitch-ps/blob/master/main.js#L417
-                            #      suggests that it should be just the entire, now deleted, goal model
-                            ws.streamers[streamer_index].delete_community_goal(message.data["community_goal"]["id"])
-
-                        if message.type in ["community-goal-updated", "community-goal-created"]:
-                            ws.twitch.contribute_to_community_goals(ws.streamers[streamer_index])
-
                 except Exception:
                     logger.error(
-                        f"Exception raised for topic: {message.topic} and message: {message}",
+                        f"Обнаружено исключение в теме: {message.topic} и сообщение: {message}",
                         exc_info=True,
                     )
 
         elif response["type"] == "RESPONSE" and len(response.get("error", "")) > 0:
             # raise RuntimeError(f"Error while trying to listen for a topic: {response}")
             error_message = response.get("error", "")
-            logger.error(f"Error while trying to listen for a topic: {error_message}")
+            logger.error(f"Ошибка при попытке прослушать тему: {response}")
             
             # Check if the error message indicates an authentication issue (ERR_BADAUTH)
             if "ERR_BADAUTH" in error_message:
                 # Inform the user about the potential outdated cookie file
                 username = ws.twitch.twitch_login.username
-                logger.error(f"Received the ERR_BADAUTH error, most likely you have an outdated cookie file \"cookies\\{username}.pkl\". Delete this file and try again.")
+                logger.error(f"Получена ошибка ERR_BADAUTH, похоже у вас старые куки \"cookies\\{username}.pkl\". УДалите этот файл и попробуйте снова.")
                 # Attempt to delete the outdated cookie file
                 # try:
                 #     cookie_file_path = os.path.join("cookies", f"{username}.pkl")
@@ -447,7 +427,7 @@ class WebSocketsPool:
                 #     logger.error(f"Error occurred while deleting cookie file: {str(e)}")
 
         elif response["type"] == "RECONNECT":
-            logger.info(f"#{ws.index} - Reconnection required")
+            logger.info(f"#{ws.index} - Необходимо переподключение")
             WebSocketsPool.handle_reconnection(ws)
 
         elif response["type"] == "PONG":

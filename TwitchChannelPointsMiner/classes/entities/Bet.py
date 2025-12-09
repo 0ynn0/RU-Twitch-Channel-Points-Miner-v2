@@ -73,7 +73,7 @@ class FilterCondition(object):
         self.value = value
 
     def __repr__(self):
-        return f"FilterCondition(by={self.by.upper()}, where={self.where}, value={self.value})"
+        return f"Условия фильтра: (по: {self.by.upper()}, где: {self.where}, значение: {self.value})"
 
 
 class BetSettings(object):
@@ -130,7 +130,7 @@ class BetSettings(object):
         )
 
     def __repr__(self):
-        return f"BetSettings(strategy={self.strategy}, percentage={self.percentage}, percentage_gap={self.percentage_gap}, max_points={self.max_points}, minimum_points={self.minimum_points}, stealth_mode={self.stealth_mode})"
+        return f"Настройки ставок (Стратегия: {self.strategy}, Процент: {self.percentage}, Разрыв: {self.percentage_gap}, Максимум: {self.max_points}, Минимум: {self.minimum_points}, Скрытый режим: {self.stealth_mode})"
 
 
 class Bet(object):
@@ -194,7 +194,7 @@ class Bet(object):
         self.__clear_outcomes()
 
     def __repr__(self):
-        return f"Bet(total_users={millify(self.total_users)}, total_points={millify(self.total_points)}), decision={self.decision})\n\t\tOutcome A({self.get_outcome(0)})\n\t\tOutcome B({self.get_outcome(1)})"
+        return f"Ставка (Всего чатеров: {millify(self.total_users)}, Приколов: {millify(self.total_points)}), Выбор: {self.decision})\n\t\tВыбор 1({self.get_outcome(0)})\n\t\tВыбор 2({self.get_outcome(1)})"
 
     def get_decision(self, parsed=False):
         #decision = self.outcomes[0 if self.decision["choice"] == "A" else 1]
@@ -203,7 +203,7 @@ class Bet(object):
 
     @staticmethod
     def __parse_outcome(outcome):
-        return f"{outcome['title']} ({outcome['color']}), Points: {millify(outcome[OutcomeKeys.TOTAL_POINTS])}, Users: {millify(outcome[OutcomeKeys.TOTAL_USERS])} ({outcome[OutcomeKeys.PERCENTAGE_USERS]}%), Odds: {outcome[OutcomeKeys.ODDS]} ({outcome[OutcomeKeys.ODDS_PERCENTAGE]}%)"
+        return f"{outcome['title']} ({outcome['color']}), Приколы: {millify(outcome[OutcomeKeys.TOTAL_POINTS])}, Чатеров: {millify(outcome[OutcomeKeys.TOTAL_USERS])} ({outcome[OutcomeKeys.PERCENTAGE_USERS]}%), Шансы: {outcome[OutcomeKeys.ODDS]} ({outcome[OutcomeKeys.ODDS_PERCENTAGE]}%)"
 
     def get_outcome(self, index):
         return Bet.__parse_outcome(self.outcomes[index])

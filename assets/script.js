@@ -66,8 +66,8 @@ var options = {
                 <div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex; padding-bottom: 0px !important;">
                     <div class="apexcharts-tooltip-text">
                         <div class="apexcharts-tooltip-y-group">
-                            <span class="apexcharts-tooltip-text-label"><b>Points</b>: ${series[seriesIndex][dataPointIndex]}</span><br>
-                            <span class="apexcharts-tooltip-text-label"><b>Reason</b>: ${w.globals.seriesZ[seriesIndex][dataPointIndex] ? w.globals.seriesZ[seriesIndex][dataPointIndex] : ''}</span>
+                            <span class="apexcharts-tooltip-text-label"><b>Баллов</b>: ${series[seriesIndex][dataPointIndex]}</span><br>
+                            <span class="apexcharts-tooltip-text-label"><b>Причина</b>: ${w.globals.seriesZ[seriesIndex][dataPointIndex] ? w.globals.seriesZ[seriesIndex][dataPointIndex] : ''}</span>
                         </div>
                     </div>
                 </div>

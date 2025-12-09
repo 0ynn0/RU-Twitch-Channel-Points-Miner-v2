@@ -53,7 +53,7 @@ class TwitchWebSocket(WebSocketApp):
     def send(self, request):
         try:
             request_str = json.dumps(request, separators=(",", ":"))
-            logger.debug(f"#{self.index} - Send: {request_str}")
+            logger.debug(f"#{self.index} - Отправлено: {request_str}")
             super().send(request_str)
         except WebSocketConnectionClosedException:
             self.is_closed = True

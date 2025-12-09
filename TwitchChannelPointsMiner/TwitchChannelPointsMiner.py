@@ -18,7 +18,7 @@ from TwitchChannelPointsMiner.classes.entities.Streamer import (
     StreamerSettings,
 )
 from TwitchChannelPointsMiner.classes.Exceptions import StreamerDoesNotExistException
-from TwitchChannelPointsMiner.classes.Settings import FollowersOrder, Priority, Settings
+from TwitchChannelPointsMiner.classes.Settings import FollowersOrder, Priority, Settings, Events
 from TwitchChannelPointsMiner.classes.Twitch import Twitch
 from TwitchChannelPointsMiner.classes.WebSocketsPool import WebSocketsPool
 from TwitchChannelPointsMiner.logger import LoggerSettings, configure_loggers
@@ -88,8 +88,8 @@ class TwitchChannelPointsMiner:
     ):
         # Fixes TypeError: 'NoneType' object is not subscriptable
         if not username or username == "your-twitch-username":
-            logger.error("Please edit your runner file (usually run.py) and try again.")
-            logger.error("No username, exiting...")
+            logger.error("Пожалуйста измените файл run.py и попробуйте снова.")
+            logger.error("Нет логина, выход...")
             sys.exit(0)
 
         # This disables certificate verification and allows the connection to proceed, but also makes it vulnerable to man-in-the-middle (MITM) attacks.
@@ -112,7 +112,7 @@ class TwitchChannelPointsMiner:
         error_printed = False
         while not is_connected():
             if not error_printed:
-                logger.error("Waiting for Twitch.tv connectivity...")
+                logger.error("Ждём подключение Twitch.tv...")
                 error_printed = True
             time.sleep(5)
 
@@ -160,18 +160,18 @@ class TwitchChannelPointsMiner:
         # Check for the latest version of the script
         current_version, github_version = check_versions()
 
-        logger.info(
-            f"Twitch Channel Points Miner v2-{current_version} (fork by rdavydov)"
-        )
-        logger.info("https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2")
+        #logger.info(
+            #f"Twitch Channel Points Miner v2-{current_version} (fork by rdavydov)"
+        #)
+        #logger.info("https://github.com/rdavydov/Twitch-Channel-Points-Miner-v2")
 
-        if github_version == "0.0.0":
-            logger.error(
-                "Unable to detect if you have the latest version of this script"
-            )
-        elif current_version != github_version:
-            logger.info(f"You are running version {current_version} of this script")
-            logger.info(f"The latest version on GitHub is {github_version}")
+        #if github_version == "0.0.0":
+            #logger.error(
+                #"Unable to detect if you have the latest version of this script"
+            #)
+        #elif current_version != github_version:
+            #logger.info(f"You are running version {current_version} of this script")
+            #logger.info(f"The latest version on GitHub is {github_version}")
 
         for sign in [signal.SIGINT, signal.SIGSEGV, signal.SIGTERM]:
             signal.signal(sign, self.end)
@@ -199,7 +199,7 @@ class TwitchChannelPointsMiner:
             http_server.name = "Analytics Thread"
             http_server.start()
         else:
-            logger.error("Can't start analytics(), please set enable_analytics=True")
+            logger.error("Не удалось запустить analytics(), пожалуйста установите enable_analytics=True")
 
     def mine(
         self,
@@ -218,10 +218,10 @@ class TwitchChannelPointsMiner:
         followers_order: FollowersOrder = FollowersOrder.ASC,
     ):
         if self.running:
-            logger.error("You can't start multiple sessions of this instance!")
+            logger.error("Нельзя запускать несколько сессий!")
         else:
             logger.info(
-                f"Start session: '{self.session_id}'", extra={"emoji": ":bomb:"}
+                f"Старт сессии: '{self.session_id}'", extra={"emoji": ":bomb:", "event": Events.GAIN_FOR_WATCH_STREAK}
             )
             self.running = True
             self.start_datetime = datetime.now()
@@ -247,7 +247,7 @@ class TwitchChannelPointsMiner:
             if followers is True:
                 followers_array = self.twitch.get_followers(order=followers_order)
                 logger.info(
-                    f"Load {len(followers_array)} followers from your profile!",
+                    f"Загрузка {len(followers_array)} Фолловеров из Вашего профиля!",
                     extra={"emoji": ":clipboard:"},
                 )
                 for username in followers_array:
@@ -256,8 +256,8 @@ class TwitchChannelPointsMiner:
                         streamers_dict[username] = username.lower().strip()
 
             logger.info(
-                f"Loading data for {len(streamers_name)} streamers. Please wait...",
-                extra={"emoji": ":nerd_face:"},
+                f"Загрузка данных {len(streamers_name)} стримеров. Пожалуйста подождите...",
+                extra={"emoji": ":nerd_face:", "event": Events.GAIN_FOR_WATCH_STREAK},
             )
             for username in streamers_name:
                 if username in streamers_name:
@@ -284,7 +284,7 @@ class TwitchChannelPointsMiner:
                         self.streamers.append(streamer)
                     except StreamerDoesNotExistException:
                         logger.info(
-                            f"Streamer {username} does not exist",
+                            f"Стример {username} не существует",
                             extra={"emoji": ":cry:"},
                         )
 
@@ -300,7 +300,7 @@ class TwitchChannelPointsMiner:
                     # self.twitch.viewer_is_mod(streamer)
                 except StreamerDoesNotExistException:
                     logger.info(
-                        f"Streamer {streamer.username} does not exist",
+                        f"Стример {streamer.username} не существует",
                         extra={"emoji": ":cry:"},
                     )
 
@@ -400,7 +400,7 @@ class TwitchChannelPointsMiner:
                         and internet_connection_available() is True
                     ):
                         logger.info(
-                            f"#{index} - The last PING was sent more than 10 minutes ago. Reconnecting to the WebSocket..."
+                            f"#{index} - Последний PING был отправлен больше 10 минут назад. Переподключение к WebSocket..."
                         )
                         WebSocketsPool.handle_reconnection(self.ws_pool.ws[index])
 
@@ -416,7 +416,7 @@ class TwitchChannelPointsMiner:
         if not self.running:
             return
         
-        logger.info("CTRL+C Detected! Please wait just a moment!")
+        logger.info("CTRL+C обнаружено! Пожалуйста подождите!")
 
         for streamer in self.streamers:
             if (
@@ -454,15 +454,15 @@ class TwitchChannelPointsMiner:
     def __print_report(self):
         print("\n")
         logger.info(
-            f"Ending session: '{self.session_id}'", extra={"emoji": ":stop_sign:"}
+            f"Завершение сессии: '{self.session_id}'", extra={"emoji": ":stop_sign:", "event": Events.LOGS_PRINT,}
         )
         if self.logs_file is not None:
             logger.info(
-                f"Logs file: {self.logs_file}", extra={"emoji": ":page_facing_up:"}
+                f"Файл логов: {self.logs_file}", extra={"emoji": ":page_facing_up:", "event": Events.LOGS_PRINT,}
             )
         logger.info(
-            f"Duration {datetime.now() - self.start_datetime}",
-            extra={"emoji": ":hourglass:"},
+            f"Длительность {datetime.now() - self.start_datetime}",
+            extra={"emoji": ":hourglass:", "event": Events.LOGS_PRINT,},
         )
 
         if not Settings.logger.less and self.events_predictions != {}:
@@ -475,16 +475,16 @@ class TwitchChannelPointsMiner:
                 ):
                     logger.info(
                         f"{event.streamer.settings.bet}",
-                        extra={"emoji": ":wrench:"},
+                        extra={"emoji": ":wrench:", "event": Events.LOGS_PRINT,},
                     )
                     if event.streamer.settings.bet.filter_condition is not None:
                         logger.info(
                             f"{event.streamer.settings.bet.filter_condition}",
-                            extra={"emoji": ":pushpin:"},
+                            extra={"emoji": ":pushpin:", "event": Events.LOGS_PRINT,},
                         )
                     logger.info(
                         f"{event.print_recap()}",
-                        extra={"emoji": ":bar_chart:"},
+                        extra={"emoji": ":bar_chart:", "event": Events.LOGS_PRINT,},
                     )
 
         print("")
@@ -497,17 +497,15 @@ class TwitchChannelPointsMiner:
                 
                 from colorama import Fore
                 streamer_highlight = Fore.YELLOW
-                
-                streamer_gain = (
-                    f"{streamer_highlight}{self.streamers[streamer_index]}{Fore.RESET}, Total Points Gained: {_millify(gained)}"
-                    if Settings.logger.less
-                    else f"{streamer_highlight}{repr(self.streamers[streamer_index])}{Fore.RESET}, Total Points Gained (after farming - before farming): {_millify(gained)}"
-                )
-                
+                             
                 indent = ' ' * 25
-                streamer_history = '\n'.join(f"{indent}{history}" for history in self.streamers[streamer_index].print_history().split('; ')) 
+                streamer_history = ' '.join(f"{indent}{history}" for history in self.streamers[streamer_index].print_history().split('; ')) 
                 
                 logger.info(
-                    f"{streamer_gain}\n{streamer_history}",
-                    extra={"emoji": ":moneybag:"},
+                    f"{self.streamers[streamer_index]}, Всего Баллов получено: {_millify(gained)}",
+                    extra={"emoji": ":robot:", "event": Events.LOGS_PRINT,},
+                )
+                logger.info(
+                    f"{streamer_history}",
+                    extra={"emoji": ":moneybag:", "event": Events.LOGS_PRINT,},
                 )

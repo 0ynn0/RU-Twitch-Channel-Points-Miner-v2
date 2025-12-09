@@ -34,7 +34,7 @@ class CommunityGoal(object):
             return False
 
     def __repr__(self) -> str:
-        return f"CommunityGoal(goal_id: {self.goal_id}, title: {self.title}, is_in_stock: {self.is_in_stock}, points_contributed: {self.points_contributed}, amount_needed: {self.amount_needed}, per_stream_user_maximum_contribution: {self.per_stream_user_maximum_contribution}, status: {self.status})"
+        return f"Цель сообщества: (goal_id: {self.goal_id}, Название: {self.title}, В наличии: {self.is_in_stock}, Приколов внесено: {self.points_contributed}, Приколов нужно: {self.amount_needed}, Максимальный взнос за стрим: {self.per_stream_user_maximum_contribution}, Статус: {self.status})"
 
     def amount_left(self):
         return self.amount_needed - self.points_contributed

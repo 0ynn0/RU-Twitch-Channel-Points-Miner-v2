@@ -115,11 +115,11 @@ class Streamer(object):
         self.mutex = Lock()
 
     def __repr__(self):
-        return f"Streamer(username={self.username}, channel_id={self.channel_id}, channel_points={_millify(self.channel_points)})"
+        return f"{self.username} ({_millify(self.channel_points)} Приколов)"
 
     def __str__(self):
         return (
-            f"{self.username} ({_millify(self.channel_points)} points)"
+            f"{self.username} ({_millify(self.channel_points)} Приколов)"
             if Settings.logger.less
             else self.__repr__()
         )
@@ -132,7 +132,7 @@ class Streamer(object):
         self.toggle_chat()
 
         logger.info(
-            f"{self} is Offline!",
+            f"{self} Оффлайн!",
             extra={
                 "emoji": ":sleeping:",
                 "event": Events.STREAMER_OFFLINE,
@@ -148,7 +148,7 @@ class Streamer(object):
         self.toggle_chat()
 
         logger.info(
-            f"{self} is Online!",
+            f"{self} Онлайн!",
             extra={
                 "emoji": ":partying_face:",
                 "event": Events.STREAMER_ONLINE,
@@ -158,7 +158,7 @@ class Streamer(object):
     def print_history(self):
         return "; ".join(
             [
-                f"{key} ({self.history[key]['counter']} times, {_millify(self.history[key]['amount'])} gained)"
+                f"{key} ({self.history[key]['counter']} раз, {_millify(self.history[key]['amount'])} получено)"
                 for key in sorted(self.history)
                 if self.history[key]["counter"] != 0
             ]

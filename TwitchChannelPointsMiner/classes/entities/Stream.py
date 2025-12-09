@@ -64,10 +64,10 @@ class Stream(object):
         )
         self.__last_update = time.time()
 
-        logger.debug(f"Update: {self}")
+        logger.debug(f"Обновление: {self}")
 
     def __repr__(self):
-        return f"Stream(title={self.title}, game={self.__str_game()}, tags={self.__str_tags()})"
+        return f"Стрим: (title={self.title}, Игра: {self.__str_game()}, Тэги: {self.__str_tags()})"
 
     def __str__(self):
         return f"{self.title}" if Settings.logger.less else self.__repr__()

@@ -44,11 +44,11 @@ class Campaign(object):
         self.drops = list(map(lambda x: Drop(x), dict["timeBasedDrops"]))
 
     def __repr__(self):
-        return f"Campaign(id={self.id}, name={self.name}, game={self.game}, in_inventory={self.in_inventory})"
+        return f"Компания: (id: {self.id}, имя: {self.name}, игра: {self.game}, в инвентаре: {self.in_inventory})"
 
     def __str__(self):
         return (
-            f"{self.name}, Game: {self.game['displayName']} - Drops: {len(self.drops)} pcs. - In inventory: {self.in_inventory}"
+            f"{self.name}, Игра: {self.game['displayName']} - Дропсы: {len(self.drops)} шт. - В инвентаре: {self.in_inventory}"
             if Settings.logger.less
             else self.__repr__()
         )

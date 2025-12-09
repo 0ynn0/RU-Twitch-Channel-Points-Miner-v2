@@ -130,7 +130,7 @@ class FileFormatter(logging.Formatter):
         if settings.time_zone:
             try:
                 self.timezone = pytz.timezone(settings.time_zone)
-                logging.info(f"File logger time zone set to: {self.timezone}")
+                #logging.info(f"File logger time zone set to: {self.timezone}")
             except pytz.UnknownTimeZoneError:
                 logging.error(
                     f"File logger: invalid time zone: {settings.time_zone}")
@@ -152,10 +152,10 @@ class GlobalFormatter(logging.Formatter):
             try:
                 self.timezone = pytz.timezone(settings.time_zone)
                 logging.info(
-                    f"Console logger time zone set to: {self.timezone}")
+                    f"Часовой пояс установлен на: {self.timezone}")
             except pytz.UnknownTimeZoneError:
                 logging.error(
-                    f"Console logger: invalid time zone: {settings.time_zone}")
+                    f"Консоль: Неправильный часовой пояс: {settings.time_zone}")
         logging.Formatter.__init__(self, fmt=fmt, datefmt=datefmt)
 
     def formatTime(self, record, datefmt=None):

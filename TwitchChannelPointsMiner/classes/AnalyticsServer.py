@@ -8,7 +8,7 @@ from threading import Thread
 import pandas as pd
 from flask import Flask, Response, cli, render_template, request
 
-from TwitchChannelPointsMiner.classes.Settings import Settings
+from TwitchChannelPointsMiner.classes.Settings import Events, Settings
 from TwitchChannelPointsMiner.utils import download_file
 
 cli.show_server_banner = lambda *_: None
@@ -191,7 +191,7 @@ def streamers():
 
 def download_assets(assets_folder, required_files):
     Path(assets_folder).mkdir(parents=True, exist_ok=True)
-    logger.info(f"Downloading assets to {assets_folder}")
+    logger.info(f"Загрузка ресурсов в {assets_folder}")
 
     for f in required_files:
         if os.path.isfile(os.path.join(assets_folder, f)) is False:
@@ -200,7 +200,7 @@ def download_assets(assets_folder, required_files):
                               os.path.join(assets_folder, f))
                 is True
             ):
-                logger.info(f"Downloaded {f}")
+                logger.info(f"Загружено {f}")
 
 
 def check_assets():
@@ -213,12 +213,12 @@ def check_assets():
     ]
     assets_folder = os.path.join(Path().absolute(), "assets")
     if os.path.isdir(assets_folder) is False:
-        logger.info(f"Assets folder not found at {assets_folder}")
+        logger.info(f"Папка с ресурсами не обнаружена в {assets_folder}")
         download_assets(assets_folder, required_files)
     else:
         for f in required_files:
             if os.path.isfile(os.path.join(assets_folder, f)) is False:
-                logger.info(f"Missing file {f} in {assets_folder}")
+                logger.info(f"Не найден файл {f} в {assets_folder}")
                 download_assets(assets_folder, required_files)
                 break
 
@@ -262,7 +262,7 @@ class AnalyticsServer(Thread):
                 return Response(new_log_entries, status=200, mimetype="text/plain")
 
             except FileNotFoundError:
-                return Response("Log file not found.", status=404, mimetype="text/plain")
+                return Response("Файл логов не найден.", status=404, mimetype="text/plain")
 
         self.app = Flask(
             __name__,
@@ -288,8 +288,8 @@ class AnalyticsServer(Thread):
 
     def run(self):
         logger.info(
-            f"Analytics running on http://{self.host}:{self.port}/",
-            extra={"emoji": ":globe_with_meridians:"},
+            f"Аналитика запущена на http://{self.host}:{self.port}/",
+            extra={"emoji": ":globe_with_meridians:", "event": Events.GAIN_FOR_WATCH_STREAK},
         )
         self.app.run(host=self.host, port=self.port,
                      threaded=True, debug=False)

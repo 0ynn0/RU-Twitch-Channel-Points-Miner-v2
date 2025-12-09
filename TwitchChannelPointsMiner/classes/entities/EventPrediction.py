@@ -44,7 +44,7 @@ class EventPrediction(object):
         self.bet = Bet(outcomes, streamer.settings.bet)
 
     def __repr__(self):
-        return f"EventPrediction(event_id={self.event_id}, streamer={self.streamer}, title={self.title})"
+        return f"Прогноз события (id события: {self.event_id}, стример: {self.streamer}, название: {self.title})"
 
     def __str__(self):
         return (
@@ -80,9 +80,9 @@ class EventPrediction(object):
         points["prefix"] = "+" if points["gained"] >= 0 else ""
 
         action = (
-            "Lost"
+            "Проиграно"
             if result_type == "LOSE"
-            else ("Refunded" if result_type == "REFUND" else "Gained")
+            else ("Возвращено" if result_type == "REFUND" else "Получено")
         )
 
         self.result = {

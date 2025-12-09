@@ -26,27 +26,49 @@ twitch_miner = TwitchChannelPointsMiner(
     ],
     enable_analytics=False,                     # Disables Analytics if False. Disabling it significantly reduces memory consumption
     disable_ssl_cert_verification=False,        # Set to True at your own risk and only to fix SSL: CERTIFICATE_VERIFY_FAILED error
-    disable_at_in_nickname=False,               # Set to True if you want to check for your nickname mentions in the chat even without @ sign
+    disable_at_in_nickname=True,               # Set to True if you want to check for your nickname mentions in the chat even without @ sign
     logger_settings=LoggerSettings(
         save=True,                              # If you want to save logs in a file (suggested)
         console_level=logging.INFO,             # Level of logs - use logging.DEBUG for more info
         console_username=False,                 # Adds a username to every console log line if True. Also adds it to Telegram, Discord, etc. Useful when you have several accounts
         auto_clear=True,                        # Create a file rotation handler with interval = 1D and backupCount = 7 if True (default)
-        time_zone="",                           # Set a specific time zone for console and file loggers. Use tz database names. Example: "America/Denver"
-        file_level=logging.DEBUG,               # Level of logs - If you think the log file it's too big, use logging.INFO
+        time_zone="Etc/GMT-3",                  # Set a specific time zone for console and file loggers. Use tz database names. Example: "America/Denver"
+        file_level=logging.INFO,               # Level of logs - If you think the log file it's too big, use logging.INFO
         emoji=True,                             # On Windows, we have a problem printing emoji. Set to false if you have a problem
         less=False,                             # If you think that the logs are too verbose, set this to True
         colored=True,                           # If you want to print colored text
         color_palette=ColorPalette(             # You can also create a custom palette color (for the common message).
+            GAIN_FOR_CLAIM=Fore.BLUE,           #
+            GAIN_FOR_WATCH=Fore.CYAN,           #
+            GAIN_FOR_PREDICTION=Fore.YELLOW,    #
+            GAIN_FOR_REFUND=Fore.YELLOW,        #
+            GAIN_FOR_RAID=Fore.YELLOW,          #
+            BONUS_CLAIM=Fore.BLUE,              #
+            GAIN_FOR_WATCH_STREAK=Fore.YELLOW,  #
             STREAMER_online="GREEN",            # Don't worry about lower/upper case. The script will parse all the values.
             streamer_offline="red",             # Read more in README.md
-            BET_wiN=Fore.MAGENTA                # Color allowed are: [BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET].
+            BET_wiN=Fore.GREEN,                 # Color allowed are: [BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET].
+            BET_LOSE=Fore.RED,                  #
+            BET_FAILED=Fore.RED,                #
+            BET_FILTERS=Fore.MAGENTA,           #
+            BET_REFUND=Fore.YELLOW,             #
+            BET_GENERAL=Fore.MAGENTA,           #
+            BET_START=Fore.MAGENTA,             #
+            LOGS_PRINT=Fore.YELLOW,             #
+            CHAT_MENTION=Fore.YELLOW,           #
+            JOIN_RAID=Fore.YELLOW,              #
+            DROP_CLAIM=Fore.YELLOW,             #
+            MOMENT_CLAIM=Fore.MAGENTA,          #
+
         ),
         telegram=Telegram(                                                          # You can omit or set to None if you don't want to receive updates on Telegram
             chat_id=123456789,                                                      # Chat ID to send messages @getmyid_bot
             token="123456789:shfuihreuifheuifhiu34578347",                          # Telegram API token @BotFather
-            events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE,
-                    Events.BET_LOSE, Events.CHAT_MENTION],                          # Only these events will be sent to the chat
+            events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE, "BET_LOSE", 
+            "BET_WIN", "BET_REFUND", "BET_GENERAL", "BET_START", "BET_FAILED", 
+            "BET_FILTERS", "LOGS_PRINT", "GAIN_FOR_CLAIM", "GAIN_FOR_WATCH", 
+            "GAIN_FOR_WATCH_STREAK", "GAIN_FOR_REFUND", "BONUS_CLAIM", 
+            "CHAT_MENTION", "JOIN_RAID", "DROP_CLAIM", "MOMENT_CLAIM"],             # Only these events will be sent to the chat
             disable_notification=True,                                              # Revoke the notification (sound/vibration)
         ),
         discord=Discord(

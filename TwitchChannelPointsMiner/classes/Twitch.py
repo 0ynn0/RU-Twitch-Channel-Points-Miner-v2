@@ -154,7 +154,7 @@ class Twitch(object):
                 regex_spade, response).group(1)
         except requests.exceptions.RequestException as e:
             logger.error(
-                f"Something went wrong during extraction of 'spade_url': {e}")
+                f"Что-то пошло не так с извлечением 'spade_url' 'spade_url': {e}")
 
     def get_broadcast_id(self, streamer):
         json_data = copy.deepcopy(GQLOperations.WithIsStreamLiveQuery)
@@ -240,7 +240,7 @@ class Twitch(object):
             self.post_gql_request(json_data)
 
             logger.info(
-                f"Joining raid from {streamer} to {raid.target_login}!",
+                f"Присоединение к рейду от {streamer} на {raid.target_login}!",
                 extra={"emoji": ":performing_arts:",
                        "event": Events.JOIN_RAID},
             )
@@ -289,12 +289,12 @@ class Twitch(object):
                 },
             )
             logger.debug(
-                f"Data: {json_data}, Status code: {response.status_code}, Content: {response.text}"
+                f"Данные: {json_data}, Код статуса: {response.status_code}, Содержимое: {response.text}"
             )
             return response.json()
         except requests.exceptions.RequestException as e:
             logger.error(
-                f"Error with GQLOperations ({json_data['operationName']}): {e}"
+                f"Ошибка с GQLOperations ({json_data['operationName']}): {e}"
             )
             return {}
 
@@ -321,20 +321,20 @@ class Twitch(object):
                 },
             )
             logger.debug(
-                f"Data: [], Status code: {response.status_code}, Content: {response.text}"
+                f"Данные: [], Код статуса: {response.status_code}, Содержимое: {response.text}"
             )
             self.integrity = response.json().get("token", None)
-            # logger.info(f"integrity: {self.integrity}")
+            # logger.info(f"целостность: {self.integrity}")
 
             if self.isBadBot(self.integrity) is True:
                 logger.info(
-                    "Uh-oh, Twitch has detected this miner as a \"Bad Bot\". Don't worry.")
+                    "Ой-ой, Twitch определил этот майнер \"Плохим ботом\". Не волнуйтесь.")
 
             self.integrity_expire = response.json().get("expiration", 0)
-            # logger.info(f"integrity_expire: {self.integrity_expire}")
+            # logger.info(f"целостность истекает: {self.integrity_expire}")
             return self.integrity
         except requests.exceptions.RequestException as e:
-            logger.error(f"Error with post_integrity: {e}")
+            logger.error(f"Ошибка с целостностью: {e}")
             return self.integrity
 
     # verify the integrity token's contents for the "is_bad_bot" flag
@@ -345,10 +345,10 @@ class Twitch(object):
         match = re.search(r'(.+)(?<="}).+$', messy_json)
         if match is None:
             # raise MinerException("Unable to parse the integrity token")
-            logger.info("Unable to parse the integrity token. Don't worry.")
+            logger.info("Не удаётся проанализировать токен целостности. Не волнуйтесь.")
             return
         decoded_header = json.loads(match.group(1))
-        # logger.info(f"decoded_header: {decoded_header}")
+        # logger.info(f"декодированный заголовок: {decoded_header}")
         if decoded_header.get("is_bad_bot", "false") != "false":
             return True
         else:
@@ -358,19 +358,19 @@ class Twitch(object):
         try:
             response = requests.get(URL)
             if response.status_code != 200:
-                logger.debug(
-                    f"Error with update_client_version: {response.status_code}"
-                )
+                # logger.debug(
+                    # f"Ошибка с обновлением версии клиента: {response.status_code}"
+                # )
                 return self.client_version
             matcher = re.search(self.twilight_build_id_pattern, response.text)
             if not matcher:
-                logger.debug("Error with update_client_version: no match")
+                logger.debug("Ошибка с обновлением версии клиента: нет совпадений")
                 return self.client_version
             self.client_version = matcher.group(1)
-            logger.debug(f"Client version: {self.client_version}")
+            logger.debug(f"Версия клиента: {self.client_version}")
             return self.client_version
         except requests.exceptions.RequestException as e:
-            logger.error(f"Error with update_client_version: {e}")
+            # logger.error(f"Ошибка с обновлением версии клиента: {e}")
             return self.client_version
 
     def send_minute_watched_events(self, streamers, priority, chunk_size=3):
@@ -393,8 +393,8 @@ class Twitch(object):
                         self.check_streamer_online(streamers[index])
 
                 """
-                Twitch has a limit - you can't watch more than 2 channels at one time.
-                We'll take the first two streamers from the final list as they have the highest priority.
+                   Twitch has a limit - you can't watch more than 2 channels at one time.
+                   We'll take the first two streamers from the final list as they have the highest priority.
                 """
                 max_watch_amount = 2
                 streamers_watching = set()
@@ -501,11 +501,11 @@ class Twitch(object):
                             responsePlaybackAccessToken = self.post_gql_request(
                                 json_data)
                             logger.debug(
-                                f"Sent PlaybackAccessToken request for {streamers[index]}")
+                                f"Отправлен запрос PlaybackAccessToken для {streamers[index]}")
 
                             if 'data' not in responsePlaybackAccessToken:
                                 logger.error(
-                                    f"Invalid response from Twitch: {responsePlaybackAccessToken}")
+                                    f"Недействительный ответ от Twitch: {responsePlaybackAccessToken}")
                                 continue
 
                             streamPlaybackAccessToken = responsePlaybackAccessToken["data"].get(
@@ -516,12 +516,12 @@ class Twitch(object):
 
                             if not signature or not value:
                                 logger.error(
-                                    f"Missing signature or value in Twitch response: {responsePlaybackAccessToken}")
+                                    f"Отсутствует подпись или значение в ответе Twitch: {responsePlaybackAccessToken}")
                                 continue
 
                         except Exception as e:
                             logger.error(
-                                f"Error fetching PlaybackAccessToken for {streamers[index]}: {str(e)}")
+                                f"Ошибка при выборке PlaybackAccessToken для {streamers[index]}: {str(e)}")
                             continue
 
                         # encoded_value = quote(json.dumps(value))
@@ -536,7 +536,7 @@ class Twitch(object):
                             timeout=20,
                         )  # timeout=60
                         logger.debug(
-                            f"Send RequestBroadcastQualitiesURL request for {streamers[index]} - Status code: {responseBroadcastQualities.status_code}"
+                            f"Отправлен запрос broadcastqualitiesurl для {streamers[index]} - Код статуса: {responseBroadcastQualities.status_code}"
                         )
                         if responseBroadcastQualities.status_code != 200:
                             continue
@@ -555,7 +555,7 @@ class Twitch(object):
                             timeout=20,
                         )  # timeout=60
                         logger.debug(
-                            f"Send BroadcastLowestQualityURL request for {streamers[index]} - Status code: {responseStreamURLList.status_code}"
+                            f"Отправлен запрос BroadcastLowestQualityURL для {streamers[index]} - Код статуса: {responseStreamURLList.status_code}"
                         )
                         if responseStreamURLList.status_code != 200:
                             continue
@@ -573,7 +573,7 @@ class Twitch(object):
                             timeout=20,
                         )  # timeout=60
                         logger.debug(
-                            f"Send StreamLowestQualityURL request for {streamers[index]} - Status code: {responseStreamLowestQualityURL.status_code}"
+                            f"Отправлен запрос StreamLowestQualityURL для {streamers[index]} - Код статуса: {responseStreamLowestQualityURL.status_code}"
                         )
                         if responseStreamLowestQualityURL.status_code != 200:
                             continue
@@ -587,7 +587,7 @@ class Twitch(object):
                             timeout=20,
                         )
                         logger.debug(
-                            f"Send minute watched request for {streamers[index]} - Status code: {response.status_code}"
+                            f"Отправлен запрос просмотренных минут для {streamers[index]} - Код статуса: {response.status_code}"
                         )
                         if response.status_code == 204:
                             streamers[index].stream.update_minute_watched()
@@ -648,11 +648,11 @@ class Twitch(object):
 
                     except requests.exceptions.ConnectionError as e:
                         logger.error(
-                            f"Error while trying to send minute watched: {e}")
+                            f"Ошибка при попытке отправить просмотренные минуты: {e}")
                         self.__check_connection_handler(chunk_size)
                     except requests.exceptions.Timeout as e:
                         logger.error(
-                            f"Error while trying to send minute watched: {e}")
+                            f"Ошибка при попытке отправить просмотренные минуты: {e}")
 
                     self.__chuncked_sleep(
                         next_iteration - time.time(), chunk_size=chunk_size
@@ -663,7 +663,7 @@ class Twitch(object):
                     self.__chuncked_sleep(20, chunk_size=chunk_size)
             except Exception:
                 logger.error(
-                    "Exception raised in send minute watched", exc_info=True)
+                    "Обнаружено исключение в отправке просмотренных минут", exc_info=True)
 
     # === CHANNEL POINTS / PREDICTION === #
     # Load the amount of current points for a channel, check if a bonus is available
@@ -701,7 +701,7 @@ class Twitch(object):
         # selector_index = 0 if decision["choice"] == "A" else 1
 
         logger.info(
-            f"Going to complete bet for {event}",
+            f"Собираюсь сделать ставку на: {event}",
             extra={
                 "emoji": ":four_leaf_clover:",
                 "event": Events.BET_GENERAL,
@@ -711,14 +711,14 @@ class Twitch(object):
             skip, compared_value = event.bet.skip()
             if skip is True:
                 logger.info(
-                    f"Skip betting for the event {event}",
+                    f"Пропуск ставки на {event}",
                     extra={
                         "emoji": ":pushpin:",
                         "event": Events.BET_FILTERS,
                     },
                 )
                 logger.info(
-                    f"Skip settings {event.bet.settings.filter_condition}, current value is: {compared_value}",
+                    f"Настройки пропуска: {event.bet.settings.filter_condition}, Текущее значение: {compared_value}",
                     extra={
                         "emoji": ":pushpin:",
                         "event": Events.BET_FILTERS,
@@ -728,7 +728,7 @@ class Twitch(object):
                 if decision["amount"] >= 10:
                     logger.info(
                         # f"Place {_millify(decision['amount'])} channel points on: {event.bet.get_outcome(selector_index)}",
-                        f"Place {_millify(decision['amount'])} channel points on: {event.bet.get_outcome(decision['choice'])}",
+                        f"Поставил {_millify(decision['amount'])} Баллов на: {event.bet.get_outcome(decision['choice'])}",
                         extra={
                             "emoji": ":four_leaf_clover:",
                             "event": Events.BET_GENERAL,
@@ -753,7 +753,7 @@ class Twitch(object):
                     ):
                         error_code = response["data"]["makePrediction"]["error"]["code"]
                         logger.error(
-                            f"Failed to place bet, error: {error_code}",
+                            f"Не удалось сделать ставку, ошибка: {error_code}",
                             extra={
                                 "emoji": ":four_leaf_clover:",
                                 "event": Events.BET_FAILED,
@@ -761,7 +761,7 @@ class Twitch(object):
                         )
                 else:
                     logger.info(
-                        f"Bet won't be placed as the amount {_millify(decision['amount'])} is less than the minimum required 10",
+                        f"Ставка не сделана, т.к. {_millify(decision['amount'])} меньше требуемого минимума",
                         extra={
                             "emoji": ":four_leaf_clover:",
                             "event": Events.BET_GENERAL,
@@ -769,7 +769,7 @@ class Twitch(object):
                     )
         else:
             logger.info(
-                f"Oh no! The event is not active anymore! Current status: {event.status}",
+                f"О нет! Событие больше не активно! Текущий статус: {event.status}",
                 extra={
                     "emoji": ":disappointed_relieved:",
                     "event": Events.BET_FAILED,
@@ -779,7 +779,7 @@ class Twitch(object):
     def claim_bonus(self, streamer, claim_id):
         if Settings.logger.less is False:
             logger.info(
-                f"Claiming the bonus for {streamer}!",
+                f"Собран бонус у {streamer}!",
                 extra={"emoji": ":gift:", "event": Events.BONUS_CLAIM},
             )
 
@@ -793,7 +793,7 @@ class Twitch(object):
     def claim_moment(self, streamer, moment_id):
         if Settings.logger.less is False:
             logger.info(
-                f"Claiming the moment for {streamer}!",
+                f"Запечатлён памятный момент у {streamer}!",
                 extra={"emoji": ":video_camera:",
                        "event": Events.MOMENT_CLAIM},
             )
@@ -896,7 +896,7 @@ class Twitch(object):
 
     def claim_drop(self, drop):
         logger.info(
-            f"Claim {drop}", extra={"emoji": ":package:", "event": Events.DROP_CLAIM}
+            f"Собран {drop}", extra={"emoji": ":package:", "event": Events.DROP_CLAIM}
         )
 
         json_data = copy.deepcopy(GQLOperations.DropsPage_ClaimDropRewards)
@@ -1012,7 +1012,7 @@ class Twitch(object):
             ]["goalContributions"]
 
             logger.debug(
-                f"Found {len(user_goal_contributions)} community goals for the current stream"
+                f"Найдена цель сообщества: {len(user_goal_contributions)}"
             )
 
             for goal_contribution in user_goal_contributions:
@@ -1021,7 +1021,7 @@ class Twitch(object):
                 if goal is None:
                     # TODO should this trigger a new load context request
                     logger.error(
-                        f"Unable to find context data for community goal {goal_id}"
+                        f"Невозможно найти данные контекста для цели сообщества {goal_id}"
                     )
                 else:
                     user_stream_contribution = goal_contribution[
@@ -1042,7 +1042,7 @@ class Twitch(object):
                         )
                     else:
                         logger.debug(
-                            f"Not contributing to community goal {goal.title}, user channel points {streamer.channel_points}, user stream contribution {user_stream_contribution}, all users total contribution {goal.points_contributed}"
+                            f"Не участвую в цели сообщества: {goal.title}, Баллов: {streamer.channel_points}, Мои взносы: {user_stream_contribution}, Все взносы: {goal.points_contributed}"
                         )
 
     def contribute_to_community_goal(self, streamer, goal_id, title, amount):
@@ -1062,10 +1062,10 @@ class Twitch(object):
         error = response["data"]["contributeCommunityPointsCommunityGoal"]["error"]
         if error:
             logger.error(
-                f"Unable to contribute channel points to community goal '{title}', reason '{error}'"
+                f"Невозможно поучаствовать в цели сообщества '{title}', Причина: '{error}'"
             )
         else:
             logger.info(
-                f"Contributed {amount} channel points to community goal '{title}'"
+                f"Сделан взнос: {amount} Баллов на цель сообщества '{title}'"
             )
             streamer.channel_points -= amount

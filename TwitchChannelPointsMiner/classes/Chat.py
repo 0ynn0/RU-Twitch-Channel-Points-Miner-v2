@@ -43,16 +43,16 @@ class ClientIRC(SingleServerIRCBot):
                 time.sleep(0.01)
             except Exception as e:
                 logger.error(
-                    f"Exception raised: {e}. Thread is active: {self.__active}"
+                    f"Обнаружено исключение: {e}. Поток активен: {self.__active}"
                 )
 
     def die(self, msg="Bye, cruel world!"):
-        self.connection.disconnect(msg)
         self.__active = False
+        self.connection.disconnect(msg)
 
     """
     def on_join(self, connection, event):
-        logger.info(f"Event: {event}", extra={"emoji": ":speech_balloon:"})
+        logger.info(f"Событие: {event}", extra={"emoji": ":speech_balloon:"})
     """
 
     # """
@@ -72,8 +72,12 @@ class ClientIRC(SingleServerIRCBot):
             nick = event.source.split("!", 1)[0]
             # chan = event.target
 
-            logger.info(f"{nick} at {self.channel} wrote: {msg}", extra={
+            logger.info(f"{nick}: {msg}", extra={
                         "emoji": ":speech_balloon:", "event": Events.CHAT_MENTION})
+        #nick = event.source.split("!", 1)[0]
+        #if nick == '0_0ynn0_0':
+            #logger.info(f"{nick}: {msg}", extra={
+                        #"emoji": ":speech_balloon:", "event": Events.CHAT_MENTION})
     # """
 
 
@@ -93,13 +97,13 @@ class ThreadChat(Thread):
     def run(self):
         self.chat_irc = ClientIRC(self.username, self.token, self.channel)
         logger.info(
-            f"Join IRC Chat: {self.channel}", extra={"emoji": ":speech_balloon:"}
+            f"Подключение к чату {self.channel}", extra={"emoji": ":speech_balloon:", "event": Events.GAIN_FOR_WATCH_STREAK}
         )
         self.chat_irc.start()
 
     def stop(self):
         if self.chat_irc is not None:
             logger.info(
-                f"Leave IRC Chat: {self.channel}", extra={"emoji": ":speech_balloon:"}
+                f"Отключение от чата {self.channel}", extra={"emoji": ":speech_balloon:", "event": Events.STREAMER_OFFLINE}
             )
             self.chat_irc.die()
